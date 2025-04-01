@@ -18,6 +18,10 @@ class AuthController extends GetxController {
   final otpSent = false.obs;
   final otpVerified = false.obs;
 
+  // Liste des pays autorisés (codes ISO)
+  // Vous pouvez modifier cette liste selon vos besoins
+  final List<String> allowedCountries = ['SN'];
+
   // Country selection - par défaut le Sénégal (SN)
   final selectedCountry =
       Country(
@@ -62,7 +66,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         'Erreur',
         'Veuillez entrer votre numéro de téléphone',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return;
     }
@@ -89,7 +93,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         'Erreur',
         'Une erreur est survenue: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;

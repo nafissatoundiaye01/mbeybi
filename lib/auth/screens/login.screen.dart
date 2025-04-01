@@ -67,17 +67,12 @@ class LoginScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: responsive.sizeFromWidth(5),
-                            ),
-                            child: Text(
-                              'Numéro de Téléphone',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                fontSize: responsive.sizeFromWidth(16),
-                                color: Colors.black,
-                              ),
+                          Text(
+                            'Numéro de Téléphone',
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              fontSize: responsive.sizeFromWidth(16),
+                              color: Colors.black,
                             ),
                           ),
                           SizedBox(height: responsive.sizeFromHeight(10)),
@@ -97,9 +92,15 @@ class LoginScreen extends StatelessWidget {
                                   ),
                                   child: InkWell(
                                     onTap: () {
-                                      showCountryPicker(
+                                      /* showCountryPicker(
                                         context: context,
                                         showPhoneCode: true,
+                                        // Filtre pour n'afficher que les pays spécifiés
+                                        countryFilter:
+                                            authController.allowedCountries,
+                                        favorite: [
+                                          'SN',
+                                        ], // Favoriser le Sénégal
                                         onSelect: (Country country) {
                                           authController.selectedCountry.value =
                                               country;
@@ -120,6 +121,7 @@ class LoginScreen extends StatelessWidget {
                                           ),
                                         ),
                                       );
+                                   */
                                     },
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(
@@ -262,7 +264,7 @@ class LoginScreen extends StatelessWidget {
                       TextSpan(
                         text: 'Conditions d\'utilisation',
                         style: TextStyle(
-                          color: AppColors.thirdColor,
+                          color: AppColors.primaryColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -270,7 +272,7 @@ class LoginScreen extends StatelessWidget {
                       TextSpan(
                         text: 'Politique de confidentialité',
                         style: TextStyle(
-                          color: AppColors.thirdColor,
+                          color: AppColors.primaryColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
