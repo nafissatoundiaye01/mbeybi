@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mbeybi/auth/screens/login.screen.dart';
 import 'package:mbeybi/core/constants/colors.dart';
 import 'package:mbeybi/core/utils/responsive.dart';
 
@@ -278,7 +280,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Center(
                   child: GestureDetector(
                     onTap: () {
-                      // Action pour la dernière page
+                      Get.to(LoginScreen());
                     },
                     child: Container(
                       width: responsive.sizeFromHeight(80),

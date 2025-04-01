@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mbeybi/auth/controllers/auth.controller.dart';
 import 'package:mbeybi/auth/screens/onboarding.screen.dart';
 
 void main() {
+  Get.put(AuthController());
   runApp(const MyApp());
 }
 
@@ -10,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Agriculture Onboarding',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
