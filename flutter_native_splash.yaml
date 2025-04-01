@@ -1,0 +1,23 @@
+flutter_native_splash:
+  # Couleur de fond du splash screen
+  color: "#FFFFFF"
+  
+  # Image pour le splash screen (votre GIF)
+  image: "assets/icons/logo_app_mbey.png"
+  
+  # Centrer l'image sur l'écran
+  android_gravity: center
+  ios_content_mode: center
+  
+  # Affichage en plein écran (sans barre de statut)
+  fullscreen: true
+  
+  # Configuration spécifique à Android 12
+  android_12:
+    # Image pour Android 12
+    image: "assets/icons/logo_app_mbey.png"
+    color: "#FFFFFF"
+  
+  # Activer pour Android et iOS
+  android: true
+  ios: true

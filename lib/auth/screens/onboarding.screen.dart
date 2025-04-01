@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mbeybi/core/constants/colors.dart';
 import 'package:mbeybi/core/utils/responsive.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -37,7 +38,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Initialiser Responsive pour l'utiliser dans tout le widget
+    final responsive = Responsive(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       body: Stack(
@@ -50,28 +59,46 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
 
+          // Conteneur principal centré
           Positioned(
-            bottom: Responsive.isMobile(context) ? 30 : 50,
-            left: 20,
-            right: 20,
-            child: SizedBox(
-              height: Responsive.isMobile(context) ? 320 : 400,
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (int page) {
-                  setState(() {
-                    _currentPage = page;
-                  });
-                },
-                itemCount: _onboardingData.length,
-                itemBuilder: (context, index) {
-                  return _buildContentBox(
-                    context,
-                    title: _onboardingData[index]["title"]!,
-                    description: _onboardingData[index]["description"]!,
-                    isLastPage: index == _onboardingData.length - 1,
-                  );
-                },
+            bottom: responsive.sizeFromHeight(20),
+            left: responsive.width! * 0.05,
+            right: responsive.width! * 0.05,
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: responsive.sizeFromHeight(
+                    Responsive.isMobile(context) ? 30 : 50,
+                  ),
+                ),
+                child: SizedBox(
+                  width: responsive.width! * 0.9,
+                  height: responsive.sizeFromHeight(
+                    Responsive.isMobile(context)
+                        ? 320
+                        : Responsive.isTablet(context)
+                        ? 360
+                        : 400,
+                  ),
+                  child: PageView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    controller: _pageController,
+                    onPageChanged: (int page) {
+                      setState(() {
+                        _currentPage = page;
+                      });
+                    },
+                    itemCount: _onboardingData.length,
+                    itemBuilder: (context, index) {
+                      return _buildContentBox(
+                        context,
+                        title: _onboardingData[index]["title"]!,
+                        description: _onboardingData[index]["description"]!,
+                        isLastPage: index == _onboardingData.length - 1,
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ),
@@ -88,9 +115,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }) {
     final responsive = Responsive(context);
 
+    // Adapter les tailles de texte en fonction du dispositif
+    final titleFontSize =
+        Responsive.isMobile(context)
+            ? responsive.sizeFromWidth(22)
+            : Responsive.isTablet(context)
+            ? responsive.sizeFromWidth(25)
+            : responsive.sizeFromWidth(28);
+
+    final descriptionFontSize =
+        Responsive.isMobile(context)
+            ? responsive.sizeFromWidth(14)
+            : Responsive.isTablet(context)
+            ? responsive.sizeFromWidth(15)
+            : responsive.sizeFromWidth(16);
+
+    // Adapter les paddings en fonction du dispositif
+    final containerPadding =
+        Responsive.isMobile(context)
+            ? responsive.sizeFromWidth(15)
+            : responsive.sizeFromWidth(20);
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: responsive.sizeFromWidth(5)),
-      padding: EdgeInsets.all(responsive.sizeFromWidth(20)),
+      padding: EdgeInsets.all(containerPadding),
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 175, 190, 120),
         borderRadius: BorderRadius.circular(15),
@@ -105,33 +153,53 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: Responsive.isMobile(context) ? 22 : 28,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+          SizedBox(
+            height: responsive.sizeFromHeight(
+              Responsive.isMobile(context)
+                  ? 60
+                  : Responsive.isTablet(context)
+                  ? 100
+                  : 140,
+            ),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: titleFontSize,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            description,
-            style: TextStyle(
-              fontSize: Responsive.isMobile(context) ? 14 : 16,
-              color: Colors.white,
-              height: 1.4,
+          SizedBox(height: responsive.sizeFromHeight(10)),
+          SizedBox(
+            height: responsive.sizeFromHeight(
+              Responsive.isMobile(context)
+                  ? 80
+                  : Responsive.isTablet(context)
+                  ? 120
+                  : 160,
+            ),
+            child: Text(
+              description,
+              style: TextStyle(
+                fontSize: descriptionFontSize,
+                color: Colors.white,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: responsive.sizeFromHeight(20)),
 
           // Pagination Dots
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(_onboardingData.length, (index) {
               return Container(
-                width: index == _currentPage ? 20 : 7,
-                height: 7,
-                margin: const EdgeInsets.only(right: 5),
+                width: responsive.sizeFromWidth(20),
+                height: responsive.sizeFromHeight(7),
+                margin: EdgeInsets.only(right: responsive.sizeFromWidth(5)),
                 decoration: BoxDecoration(
                   color:
                       index == _currentPage
@@ -147,67 +215,132 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
           // Buttons
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextButton(
-                onPressed: () {
-                  // Skip logic
-                },
-                child: const Text(
-                  "Passer",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+              if (!isLastPage)
+                SizedBox(
+                  width: responsive.sizeFromWidth(320),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          _pageController.animateToPage(
+                            2,
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.bounceIn,
+                          );
+                        },
+                        child: Text(
+                          "Passer",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: responsive.sizeFromWidth(
+                              Responsive.isMobile(context) ? 14 : 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              "Suivant",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: responsive.sizeFromWidth(
+                                  Responsive.isMobile(context) ? 14 : 16,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: responsive.sizeFromWidth(5)),
+                            Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                              size: responsive.sizeFromWidth(16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              isLastPage
-                  ? Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xE540342B),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  )
-                  : ElevatedButton(
-                    onPressed: () {
-                      _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
+              if (isLastPage)
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      // Action pour la dernière page
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.grey[700],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Responsive.isMobile(context) ? 16 : 24,
-                        vertical: Responsive.isMobile(context) ? 10 : 14,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Text(
-                          "Suivant",
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                    child: Container(
+                      width: responsive.sizeFromHeight(80),
+                      height: responsive.sizeFromHeight(80),
+                      child: CustomPaint(
+                        painter: GradientBorderPainter(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              AppColors.primaryColor,
+                            ],
+                          ),
+                          strokeWidth: 2,
                         ),
-                        const SizedBox(width: 5),
-                        const Icon(Icons.arrow_forward, size: 16),
-                      ],
+                        child: Center(
+                          child: Container(
+                            width: responsive.sizeFromWidth(40),
+                            height: responsive.sizeFromHeight(40),
+                            decoration: BoxDecoration(
+                              color: const Color(0xE540342B),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                              size: responsive.sizeFromWidth(18),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
+                ),
             ],
           ),
         ],
       ),
     );
   }
+}
+
+class GradientBorderPainter extends CustomPainter {
+  final Gradient gradient;
+  final double strokeWidth;
+
+  GradientBorderPainter({required this.gradient, required this.strokeWidth});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final paint =
+        Paint()
+          ..shader = gradient.createShader(rect)
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - strokeWidth / 2;
+
+    canvas.drawCircle(center, radius, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
