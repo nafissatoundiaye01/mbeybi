@@ -17,11 +17,19 @@ class AuthController extends GetxController {
   final addressController = TextEditingController();
   var otpCode = ''.obs;
   var pinCode = ''.obs;
+  var tempPin = ''.obs; // Pour stocker temporairement le premier PIN saisi
+  var confirmPinMode = false.obs; // Pour suivre l'état de confirmation du PIN
+  var pinError = ''.obs; // Pour les messages d'erreur sur le PIN
+  var pinInitialized =
+      false.obs; // Pour savoir si l'état du PIN a été initialisé
+
   // Observables
   final isLoading = false.obs;
   final isUserExist = false.obs;
   final otpSent = false.obs;
   final otpVerified = false.obs;
+  final isRegistrationComplete =
+      false.obs; // Pour suivre si l'inscription est complète
 
   var resendTimer = 60.obs;
   Timer? countdownTimer;
@@ -169,7 +177,7 @@ class AuthController extends GetxController {
 
   // Verify OTP code
   void verifyOTP() async {
-    if (otpCode.trim().isEmpty) {
+    if (otpCode.value.isEmpty) {
       Get.snackbar(
         backgroundColor: AppColors.thirdColor,
         colorText: Colors.white,
@@ -190,19 +198,20 @@ class AuthController extends GetxController {
       if (otpCode.value == "1234") {
         otpVerified.value = true;
 
-        // If existing user, navigate to home or complete login
+        // Diriger selon que l'utilisateur existe ou non
         if (isUserExist.value) {
-          // Here you would typically sign in the user and navigate to home
+          // Utilisateur existant - Aller directement à l'écran de vérification PIN
           Get.snackbar(
             backgroundColor: AppColors.secondaryColor,
             colorText: Colors.white,
             'Succès',
-            'Connexion réussie',
+            'Vérification réussie. Entrez votre code PIN',
             snackPosition: SnackPosition.TOP,
           );
-          Get.offAll(() => const Pincodebuilder());
+          pinInitialized.value = false;
+          Get.to(() => PinScreen(isNewUser: false));
         } else {
-          // For new user, complete registration process
+          // Nouvel utilisateur - Aller à l'écran d'inscription d'abord
           Get.snackbar(
             backgroundColor: AppColors.secondaryColor,
             colorText: Colors.white,
@@ -210,6 +219,8 @@ class AuthController extends GetxController {
             'Vérification réussie. Complétez votre inscription',
             snackPosition: SnackPosition.TOP,
           );
+          isRegistrationComplete.value =
+              false; // Assurer que l'inscription est marquée comme incomplète
           Get.to(() => const InscriptionScreen());
         }
       } else {
@@ -220,6 +231,102 @@ class AuthController extends GetxController {
           'Code OTP invalide. Veuillez réessayer',
           snackPosition: SnackPosition.TOP,
         );
+      }
+    } catch (e) {
+      Get.snackbar(
+        backgroundColor: AppColors.thirdColor,
+        colorText: Colors.white,
+        'Erreur',
+        'Erreur de vérification: ${e.toString()}',
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Réinitialiser l'état du PIN
+  void resetPinState() {
+    pinCode.value = '';
+    tempPin.value = '';
+    confirmPinMode.value = false;
+    pinError.value = '';
+  }
+
+  // Sauvegarder le code PIN et continuer
+  void savePinCode() async {
+    isLoading.value = true;
+
+    try {
+      // Simuler l'enregistrement du PIN
+      await Future.delayed(const Duration(seconds: 1));
+
+      Get.snackbar(
+        backgroundColor: AppColors.secondaryColor,
+        colorText: Colors.white,
+        'Succès',
+        isUserExist.value
+            ? 'Authentification réussie !'
+            : 'Code PIN créé avec succès !',
+        snackPosition: SnackPosition.TOP,
+      );
+
+      // Redirection finale selon le cas
+      // Note: Pour un nouvel utilisateur, l'inscription est déjà faite à ce stade
+      // On naviguerait vers l'écran principal dans les deux cas
+      // Get.offAll(() => const HomeScreen());
+
+      // Pour la démo, on peut retourner à l'inscription ou à un écran factice
+      Get.snackbar(
+        backgroundColor: AppColors.primaryColor,
+        colorText: Colors.white,
+        'Information',
+        'Navigation vers Home',
+        snackPosition: SnackPosition.TOP,
+      );
+    } catch (e) {
+      Get.snackbar(
+        backgroundColor: AppColors.thirdColor,
+        colorText: Colors.white,
+        'Erreur',
+        'Impossible de sauvegarder le code PIN: ${e.toString()}',
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Vérifier le PIN existant
+  void verifyExistingPin() async {
+    if (pinCode.value.length != 4) {
+      Get.snackbar(
+        backgroundColor: AppColors.thirdColor,
+        colorText: Colors.white,
+        'Erreur',
+        'Veuillez entrer un code PIN à 4 chiffres',
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    isLoading.value = true;
+
+    try {
+      // Simuler la vérification du PIN (dans une vraie app, vous vérifieriez avec une API/base de données)
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Pour démo, considérez "1234" comme valide
+      if (pinCode.value == "1234") {
+        savePinCode(); // Réutiliser cette méthode pour continuer le flux
+      } else {
+        pinError.value = "Code PIN incorrect. Veuillez réessayer.";
+        pinCode.value = '';
+
+        // Réinitialiser l'erreur après 3 secondes
+        Future.delayed(const Duration(seconds: 3), () {
+          pinError.value = '';
+        });
       }
     } catch (e) {
       Get.snackbar(
@@ -261,12 +368,16 @@ class AuthController extends GetxController {
         backgroundColor: AppColors.secondaryColor,
         colorText: Colors.white,
         'Succès',
-        'Inscription réussie! Bienvenue sur Mbeybi',
+        'Inscription réussie! Créez maintenant votre code PIN',
         snackPosition: SnackPosition.TOP,
       );
 
-      // Navigate to home or onboarding
-      Get.offAll(() => const Pincodebuilder());
+      // Marquer l'inscription comme complète
+      isRegistrationComplete.value = true;
+
+      // Pour un nouvel utilisateur, aller à la création du PIN maintenant
+      pinInitialized.value = false;
+      Get.to(() => PinScreen(isNewUser: true));
     } catch (e) {
       Get.snackbar(
         backgroundColor: AppColors.thirdColor,

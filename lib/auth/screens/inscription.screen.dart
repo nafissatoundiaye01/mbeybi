@@ -138,33 +138,38 @@ class InscriptionScreen extends StatelessWidget {
             ],
           ),
 
-          ElevatedButton(
-            onPressed:
-                authController.isLoading.value
-                    ? null
-                    : () => authController.registerUser(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(
-                vertical: responsive.sizeFromHeight(15),
+          Obx(() {
+            return ElevatedButton(
+              onPressed:
+                  authController.isLoading.value
+                      ? null
+                      : () => authController.registerUser(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(
+                  vertical: responsive.sizeFromHeight(15),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                minimumSize: Size(
+                  double.infinity,
+                  responsive.sizeFromHeight(50),
+                ),
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              minimumSize: Size(double.infinity, responsive.sizeFromHeight(50)),
-            ),
-            child:
-                authController.isLoading.value
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                      'Terminer l\'inscription',
-                      style: TextStyle(
-                        fontSize: responsive.sizeFromWidth(16),
-                        fontWeight: FontWeight.bold,
+              child:
+                  authController.isLoading.value
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                        'Terminer l\'inscription',
+                        style: TextStyle(
+                          fontSize: responsive.sizeFromWidth(16),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-          ),
+            );
+          }),
         ],
       ),
     );
