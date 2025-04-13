@@ -1,8 +1,10 @@
+import 'package:awesome_icons/awesome_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mbeybi/auth/controllers/auth.controller.dart';
 import 'package:mbeybi/core/constants/colors.dart';
 import 'package:mbeybi/core/utils/responsive.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 
 class ConnexionScreen extends StatelessWidget {
   const ConnexionScreen({Key? key}) : super(key: key);
@@ -21,15 +23,8 @@ class ConnexionScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: AppColors.primaryColor),
           onPressed: () => Get.back(),
         ),
-        title: Text(
-          'Connexion',
-          style: TextStyle(
-            color: AppColors.primaryColor,
-            fontSize: responsive.sizeFromWidth(18),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
+
+        //centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -60,9 +55,17 @@ class ConnexionScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'Identification',
+          style: TextStyle(
+            color: AppColors.primaryColor,
+            fontSize: responsive.sizeFromWidth(25),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         SizedBox(height: responsive.sizeFromHeight(20)),
         Text(
-          'Entrez votre code pour vous connecter',
+          'Comment voulez vous recevoir votre code de vérification ?',
           style: TextStyle(
             fontSize: responsive.sizeFromWidth(16),
             color: Colors.grey[700],
@@ -82,7 +85,7 @@ class ConnexionScreen extends StatelessWidget {
               const Icon(Icons.phone, color: AppColors.secondaryColor),
               SizedBox(width: responsive.sizeFromWidth(10)),
               Text(
-                authController.phoneController.text,
+                '+${authController.selectedCountry.value.phoneCode}${authController.phoneController.text}',
                 style: TextStyle(
                   fontSize: responsive.sizeFromWidth(16),
                   fontWeight: FontWeight.bold,
@@ -102,9 +105,8 @@ class ConnexionScreen extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: responsive.sizeFromHeight(30)),
+        SizedBox(height: responsive.sizeFromHeight(300)),
 
-        // Send OTP button
         ElevatedButton(
           onPressed:
               authController.isLoading.value
@@ -124,15 +126,57 @@ class ConnexionScreen extends StatelessWidget {
           child:
               authController.isLoading.value
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : Text(
-                    'Recevoir le code OTP',
-                    style: TextStyle(
-                      fontSize: responsive.sizeFromWidth(16),
-                      fontWeight: FontWeight.bold,
-                    ),
+                  : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(FontAwesomeIcons.whatsapp, color: Colors.white),
+                      SizedBox(width: responsive.sizeFromWidth(5)),
+                      Text(
+                        'WhatsApp',
+                        style: TextStyle(
+                          fontSize: responsive.sizeFromWidth(16),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
         ),
-        SizedBox(height: responsive.sizeFromHeight(30)),
+        SizedBox(height: responsive.sizeFromHeight(15)),
+
+        ElevatedButton(
+          onPressed:
+              authController.isLoading.value
+                  ? null
+                  : () => authController.sendOTP(),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primaryColor,
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(
+              vertical: responsive.sizeFromHeight(15),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            minimumSize: Size(double.infinity, responsive.sizeFromHeight(50)),
+          ),
+          child:
+              authController.isLoading.value
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(FontAwesomeIcons.sms, color: Colors.white),
+                      SizedBox(width: responsive.sizeFromWidth(5)),
+                      Text(
+                        'SMS',
+                        style: TextStyle(
+                          fontSize: responsive.sizeFromWidth(16),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+        ),
       ],
     );
   }
@@ -144,7 +188,6 @@ class ConnexionScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: responsive.sizeFromHeight(20)),
         Text(
           'Vérification du code OTP',
           style: TextStyle(
@@ -155,52 +198,79 @@ class ConnexionScreen extends StatelessWidget {
         ),
         SizedBox(height: responsive.sizeFromHeight(10)),
         Text(
-          'Un code de vérification a été envoyé au ${authController.phoneController.text}',
+          'Un code de vérification a été envoyé au + ${authController.selectedCountry.value.phoneCode} ${authController.phoneController.text}',
           style: TextStyle(
             fontSize: responsive.sizeFromWidth(14),
             color: Colors.grey[700],
           ),
         ),
-        SizedBox(height: responsive.sizeFromHeight(40)),
+        SizedBox(height: responsive.sizeFromHeight(100)),
 
-        // OTP Input
-        _buildOtpInputField(responsive, authController),
+        /// ✅ PIN Code input (sans Expanded)
+        Align(
+          alignment: Alignment.center,
+          child: PinCodeTextField(
+            appContext: Get.context!,
+            length: 4,
+            keyboardType: TextInputType.number,
+            obscureText: false,
+            animationType: AnimationType.fade,
+            pinTheme: PinTheme(
+              shape: PinCodeFieldShape.box,
+              borderRadius: BorderRadius.circular(8),
+              fieldHeight: responsive.sizeFromHeight(70),
+              fieldWidth: responsive.sizeFromWidth(60),
+              activeColor: AppColors.primaryColor,
+              selectedColor: AppColors.secondaryColor,
+              inactiveColor: Colors.grey,
+            ),
+            animationDuration: const Duration(milliseconds: 300),
+            onChanged: (value) {
+              authController.otpCode.value = value;
+            },
+          ),
+        ),
         SizedBox(height: responsive.sizeFromHeight(20)),
 
-        // Resend code option
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Vous n\'avez pas reçu le code ? ',
-              style: TextStyle(
-                fontSize: responsive.sizeFromWidth(14),
-                color: Colors.grey[700],
-              ),
-            ),
-            TextButton(
-              onPressed: () => authController.sendOTP(),
-              child: Text(
-                'Renvoyer',
+        /// 🔁 Renvoyer après décompte
+        Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                authController.resendTimer.value > 0
+                    ? "Renvoyer dans ${authController.resendTimer.value}s"
+                    : "Vous n'avez pas reçu le code ?",
                 style: TextStyle(
-                  color: AppColors.thirdColor,
                   fontSize: responsive.sizeFromWidth(14),
-                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
                 ),
               ),
-            ),
-          ],
+              if (authController.resendTimer.value == 0)
+                TextButton(
+                  onPressed: () => authController.sendOTP(),
+                  child: Text(
+                    'Renvoyer',
+                    style: TextStyle(
+                      color: AppColors.thirdColor,
+                      fontSize: responsive.sizeFromWidth(14),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
-        SizedBox(height: responsive.sizeFromHeight(30)),
+        SizedBox(height: responsive.sizeFromHeight(300)),
 
-        // Verify OTP button
+        /// Vérifier bouton
         ElevatedButton(
           onPressed:
               authController.isLoading.value
                   ? null
                   : () => authController.verifyOTP(),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.secondaryColor,
+            backgroundColor: AppColors.primaryColor,
             foregroundColor: Colors.white,
             padding: EdgeInsets.symmetric(
               vertical: responsive.sizeFromHeight(15),

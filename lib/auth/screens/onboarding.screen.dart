@@ -221,7 +221,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             children: [
               if (!isLastPage)
                 SizedBox(
-                  width: responsive.sizeFromWidth(320),
+                  width: responsive.sizeFromWidth(310),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,

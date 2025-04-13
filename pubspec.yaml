@@ -38,7 +38,8 @@ dependencies:
   flutter_native_splash: 
   get: ^4.7.2
   country_picker: ^2.0.27
-
+  awesome_icons: 
+  pin_code_fields:
 dev_dependencies:
   flutter_test:
     sdk: flutter
