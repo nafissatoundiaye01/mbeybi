@@ -7,6 +7,7 @@ import 'package:mbeybi/auth/screens/connexion.screen.dart';
 import 'package:mbeybi/auth/screens/inscription.screen.dart';
 import 'package:mbeybi/auth/screens/pincodebuilder.dart';
 import 'package:mbeybi/core/constants/colors.dart';
+import 'package:mbeybi/home/screens/home.dart';
 
 class AuthController extends GetxController {
   // Controllers
@@ -274,7 +275,7 @@ class AuthController extends GetxController {
       // Redirection finale selon le cas
       // Note: Pour un nouvel utilisateur, l'inscription est déjà faite à ce stade
       // On naviguerait vers l'écran principal dans les deux cas
-      // Get.offAll(() => const HomeScreen());
+      Get.offAll(() => const HomeScreen());
 
       // Pour la démo, on peut retourner à l'inscription ou à un écran factice
       Get.snackbar(
